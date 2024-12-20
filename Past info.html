@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Info Base</title>
+  <style>
+    body {
+      background-color: #000;
+      color: #00ff00;
+      font-family: "Courier New", Courier, monospace;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: start;
+      min-height: 100vh;
+    }
+
+    h1 {
+      font-size: 3rem;
+      margin: 20px 0;
+      text-shadow: 0 0 10px #00ff00;
+    }
+
+    .folders {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+    }
+
+    .folder {
+      background-color: #111;
+      border: 2px solid #00ff00;
+      border-radius: 5px;
+      padding: 10px 20px;
+      margin: 10px;
+      cursor: pointer;
+      text-align: center;
+      width: 200px;
+      box-shadow: 0 0 15px #00ff00;
+    }
+
+    .folder:hover {
+      background-color: #00ff00;
+      color: #000;
+    }
+
+    .controls {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 20px 0;
+    }
+
+    input[type="text"] {
+      background-color: #111;
+      color: #00ff00;
+      border: 2px solid #00ff00;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      font-family: "Courier New", Courier, monospace;
+    }
+
+    textarea {
+      width: 80%;
+      height: 200px;
+      background-color: #111;
+      color: #00ff00;
+      border: 2px solid #00ff00;
+      border-radius: 5px;
+      padding: 10px;
+      font-family: "Courier New", Courier, monospace;
+      margin: 10px 0;
+    }
+
+    button {
+      background-color: #111;
+      color: #00ff00;
+      border: 2px solid #00ff00;
+      padding: 10px 20px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    button:hover {
+      background-color: #00ff00;
+      color: #000;
+    }
+
+    .footer {
+      position: absolute;
+      bottom: 10px;
+      font-size: 0.8rem;
+      text-align: center;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <h1>Confidential Info Base</h1>
+
+  <div class="controls">
+    <input type="text" id="folderName" placeholder="Digite o nome da pasta">
+    <button onclick="addFolder()">Criar Pasta</button>
+  </div>
+
+  <div class="folders" id="foldersContainer">
+    <!-- Pastas criadas dinamicamente aparecem aqui -->
+  </div>
+
+  <div id="infoEditor" style="display: none;">
+    <h2 id="currentFolderName"></h2>
+    <textarea id="folderContent" placeholder="Digite as informações aqui..."></textarea>
+    <button onclick="saveInfo()">Salvar</button>
+    <button onclick="closeEditor()">Fechar</button>
+  </div>
+
+  <div class="footer">Desenvolvido para uso confidencial | Acesse com cuidado</div>
+
+  <script>
+    const foldersContainer = document.getElementById("foldersContainer");
+    const infoEditor = document.getElementById("infoEditor");
+    const folderContent = document.getElementById("folderContent");
+    const currentFolderName = document.getElementById("currentFolderName");
+    let activeFolder = "";
+
+    // Carregar pastas ao abrir o site
+    function loadFolders() {
+      const allFolders = JSON.parse(localStorage.getItem("folders")) || [];
+      allFolders.forEach(folderName => {
+        createFolderElement(folderName);
+      });
+    }
+
+    // Criar elemento de pasta
+    function createFolderElement(folderName) {
+      const folder = document.createElement("div");
+      folder.classList.add("folder");
+      folder.innerHTML = `<a href="#" onclick="openFolder('${folderName}')">${folderName}</a>`;
+      foldersContainer.appendChild(folder);
+    }
+
+    // Adicionar nova pasta
+    function addFolder() {
+      const folderName = document.getElementById("folderName").value.trim();
+
+      if (folderName === "") {
+        alert("O nome da pasta não pode estar vazio!");
+        return;
+      }
+
+      // Atualizar pastas no localStorage
+      const allFolders = JSON.parse(localStorage.getItem("folders")) || [];
+      if (!allFolders.includes(folderName)) {
+        allFolders.push(folderName);
+        localStorage.setItem("folders", JSON.stringify(allFolders));
+        createFolderElement(folderName);
+      } else {
+        alert("Essa pasta já existe!");
+      }
+
+      document.getElementById("folderName").value = "";
+    }
+
+    // Abrir pasta para edição
+    function openFolder(folderName) {
+      activeFolder = folderName;
+      currentFolderName.textContent = `Pasta: ${folderName}`;
+      const savedContent = localStorage.getItem(folderName);
+      folderContent.value = savedContent || "";
+      infoEditor.style.display = "block";
+    }
+
+    // Salvar informações na pasta
+    function saveInfo() {
+      if (activeFolder) {
+        localStorage.setItem(activeFolder, folderContent.value);
+        alert("Informações salvas com sucesso!");
+      }
+    }
+
+    // Fechar o editor
+    function closeEditor() {
+      infoEditor.style.display = "none";
+      activeFolder = "";
+    }
+
+    // Inicializar o site
+    loadFolders();
+  </script>
+</body>
+</html>
